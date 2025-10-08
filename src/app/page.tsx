@@ -1,16 +1,24 @@
 "use client";
 
 import { useState } from "react";
-import { Calendar, EyeOff, Eye, Mail, Ticket } from "@/assets";
+import { useRouter } from "next/navigation";
+import { Calendar, Eye, Mail, Ticket } from "@/assets";
 import Button from "@/components/Button";
 
 export default function Login() {
+  const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const handleSubmit = () => {
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
     console.log("Login attempt:", { email, password });
+    router.push('/dashboard');
+  };
+
+  const goToSignup = () => {
+    router.push('/signup');
   };
 
   return (
@@ -82,7 +90,7 @@ export default function Login() {
                     className="flex items-center justify-center h-5 w-5 text-gray-400 hover:text-lightText transition-colors self-center rounded cursor-pointer"
                   >
                     {showPassword ? (
-                      <EyeOff className="h-[14px] w-[18px]" />
+                      <Eye fill="darkText" className="h-[14px] w-[18px]" />
                     ) : (
                       <Eye className="h-[14px] w-[18px]" />
                     )}
@@ -99,7 +107,10 @@ export default function Login() {
             <div className="mt-6 text-center">
               <span className="text-sm text-gray-600">
                 Não tem uma conta?{" "}
-                <button className="text-brandPrimary hover:text-brandPrimary/80 font-medium transition-colors hover:underline cursor-pointer">
+                <button 
+                  onClick={goToSignup}
+                  className="text-brandPrimary hover:text-brandPrimary/80 font-medium transition-colors hover:underline cursor-pointer"
+                >
                   Criar conta
                 </button>
               </span>
