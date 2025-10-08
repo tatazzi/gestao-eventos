@@ -1,9 +1,16 @@
 "use client";
 
-import { Plus, Eye, Edit, Trash } from "@/assets";
+import { useState } from "react";
+import { Plus, Edit, Trash } from "@/assets";
+import Modal from "./Modal";
+import NewEventForm from "./NewEventForm";
+import EditEventForm from "./EditEventForm";
 
 export default function EventsList() {
-  const events = [
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [selectedEvent, setSelectedEvent] = useState<any>(null);
+  const [events, setEvents] = useState([
     {
       id: "001",
       name: "Festival de Música 2025",
@@ -26,13 +33,47 @@ export default function EventsList() {
       ticketsSold: 0,
       totalTickets: 500,
     },
-  ];
+  ]);
+
+  const handleNewEvent = (eventData: any) => {
+    setEvents(prev => [...prev, eventData]);
+    setIsModalOpen(false);
+  };
+
+  const handleOpenModal = () => {
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+  };
+
+  const handleEditEvent = (eventData: any) => {
+    setEvents(prev => prev.map(event => 
+      event.id === eventData.id ? eventData : event
+    ));
+    setIsEditModalOpen(false);
+    setSelectedEvent(null);
+  };
+
+  const handleOpenEditModal = (event: any) => {
+    setSelectedEvent(event);
+    setIsEditModalOpen(true);
+  };
+
+  const handleCloseEditModal = () => {
+    setIsEditModalOpen(false);
+    setSelectedEvent(null);
+  };
 
   return (
     <div className="p-6">
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-bold text-lightText">Lista de Eventos</h1>
-        <button className="flex items-center gap-2 bg-brandPrimary text-white px-4 py-2 rounded-lg hover:bg-brandPrimary/80 transition-colors">
+        <button 
+          onClick={handleOpenModal}
+          className="flex items-center gap-2 bg-brandPrimary text-white px-4 py-2 rounded-lg hover:bg-brandPrimary/80 transition-colors"
+        >
           <Plus className="h-4 w-4" />
           Novo Evento
         </button>
@@ -92,10 +133,10 @@ export default function EventsList() {
                 </td>
                 <td className="px-6 py-4">
                   <div className="flex items-center gap-2">
-                    <button className="p-1 text-gray-400 hover:text-lightText transition-colors">
-                      <Eye className="h-4 w-4" />
-                    </button>
-                    <button className="p-1 text-gray-400 hover:text-lightText transition-colors">
+                    <button 
+                      onClick={() => handleOpenEditModal(event)}
+                      className="p-1 text-gray-400 hover:text-lightText transition-colors"
+                    >
                       <Edit className="h-4 w-4" />
                     </button>
                     <button className="p-1 text-gray-400 hover:text-red-500 transition-colors">
@@ -113,24 +154,32 @@ export default function EventsList() {
         <div className="text-sm text-gray-500">
           Mostrando {events.length} resultados
         </div>
-        <div className="flex items-center gap-2">
-          <button className="px-3 py-1 text-sm text-gray-500 hover:text-lightText transition-colors">
-            Anterior
-          </button>
-          <button className="px-3 py-1 text-sm bg-brandPrimary text-white rounded">
-            1
-          </button>
-          <button className="px-3 py-1 text-sm text-gray-500 hover:text-lightText transition-colors">
-            2
-          </button>
-          <button className="px-3 py-1 text-sm text-gray-500 hover:text-lightText transition-colors">
-            3
-          </button>
-          <button className="px-3 py-1 text-sm text-gray-500 hover:text-lightText transition-colors">
-            Próximo
-          </button>
-        </div>
       </div>
+
+      <Modal
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+        title="Novo Evento"
+      >
+        <NewEventForm
+          onSubmit={handleNewEvent}
+          onCancel={handleCloseModal}
+        />
+      </Modal>
+
+      <Modal
+        isOpen={isEditModalOpen}
+        onClose={handleCloseEditModal}
+        title="Editar Evento"
+      >
+        {selectedEvent && (
+          <EditEventForm
+            eventData={selectedEvent}
+            onSubmit={handleEditEvent}
+            onCancel={handleCloseEditModal}
+          />
+        )}
+      </Modal>
     </div>
   );
 }
