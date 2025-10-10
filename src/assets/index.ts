@@ -12,5 +12,6 @@ import Plus from "./plus.svg";
 import Edit from "./edit.svg";
 import Trash from "./trash.svg";
 import Coupon from "./coupon.svg";
+import LogoutIcon from "./logout-icon.svg";
 
-export { Calendar, EyeOff, Eye, Mail, Ticket, UserPlus, User, Layers, Users, Plus, Edit, Trash, MiniCalendar, Coupon };
+export { Calendar, EyeOff, Eye, Mail, Ticket, UserPlus, User, Layers, Users, Plus, Edit, Trash, MiniCalendar, Coupon, LogoutIcon };
