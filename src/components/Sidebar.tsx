@@ -60,7 +60,7 @@ export default function Sidebar({ activeItem, onItemClick }: SidebarProps) {
                     : "text-gray-600 hover:bg-gray-50 hover:text-lightText"
                 }`}
               >
-                <Icon className="h-6 w-6 mr-3" />
+                <Icon className="h-4 w-4 mr-3" />
                 <span className="font-medium">{item.label}</span>
               </button>
             );
