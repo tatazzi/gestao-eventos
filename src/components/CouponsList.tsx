@@ -2,6 +2,9 @@
 
 import { useState } from "react";
 import { Plus, Edit, Trash, Copy } from "@/assets";
+import Modal from "./Modal";
+import NewCouponForm from "./NewCouponForm";
+import EditCouponForm from "./EditCouponForm";
 
 interface Coupon {
   id: string;
@@ -16,7 +19,10 @@ interface Coupon {
 }
 
 export default function CouponsList() {
-  const [coupons] = useState<Coupon[]>([
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [selectedCoupon, setSelectedCoupon] = useState<Coupon | null>(null);
+  const [coupons, setCoupons] = useState<Coupon[]>([
     {
       id: "1",
       code: "DESCONTO20",
@@ -40,6 +46,24 @@ export default function CouponsList() {
       status: "inactive"
     }
   ]);
+
+  const handleCreateCoupon = (couponData: any) => {
+    setCoupons(prev => [...prev, couponData]);
+    setIsModalOpen(false);
+  };
+
+  const handleEditCoupon = (couponData: any) => {
+    setCoupons(prev => prev.map(coupon => 
+      coupon.id === couponData.id ? couponData : coupon
+    ));
+    setIsEditModalOpen(false);
+    setSelectedCoupon(null);
+  };
+
+  const handleEditClick = (coupon: Coupon) => {
+    setSelectedCoupon(coupon);
+    setIsEditModalOpen(true);
+  };
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('pt-BR', {
@@ -85,7 +109,10 @@ export default function CouponsList() {
       <div className="mb-8">
         <div className="flex items-center justify-between mb-2">
           <h1 className="text-3xl font-bold text-gray-900">Cupons de Desconto</h1>
-          <button className="flex items-center gap-2 bg-gray-900 text-white px-4 py-2 rounded-lg hover:bg-gray-800 transition-colors">
+          <button 
+            onClick={() => setIsModalOpen(true)}
+            className="flex items-center gap-2 bg-gray-900 text-white px-4 py-2 rounded-lg hover:bg-gray-800 transition-colors"
+          >
             <Plus className="h-4 w-4" />
             <span>Novo Cupom</span>
           </button>
@@ -129,7 +156,10 @@ export default function CouponsList() {
                   </td>
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-2">
-                      <button className="p-1 text-gray-400 hover:text-gray-600 transition-colors">
+                      <button 
+                        onClick={() => handleEditClick(coupon)}
+                        className="p-1 text-gray-400 hover:text-gray-600 transition-colors"
+                      >
                         <Edit className="h-4 w-4" />
                       </button>
                       <button className="p-1 text-gray-400 hover:text-gray-600 transition-colors">
@@ -152,6 +182,37 @@ export default function CouponsList() {
           </p>
         </div>
       </div>
+
+      <Modal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        title="Novo Cupom"
+      >
+        <NewCouponForm
+          onSubmit={handleCreateCoupon}
+          onCancel={() => setIsModalOpen(false)}
+        />
+      </Modal>
+
+      <Modal
+        isOpen={isEditModalOpen}
+        onClose={() => {
+          setIsEditModalOpen(false);
+          setSelectedCoupon(null);
+        }}
+        title="Editar Cupom"
+      >
+        {selectedCoupon && (
+          <EditCouponForm
+            couponData={selectedCoupon}
+            onSubmit={handleEditCoupon}
+            onCancel={() => {
+              setIsEditModalOpen(false);
+              setSelectedCoupon(null);
+            }}
+          />
+        )}
+      </Modal>
     </div>
   );
 }
