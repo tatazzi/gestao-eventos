@@ -16,5 +16,6 @@ import LogoutIcon from "./logout-icon.svg";
 import ArrowLeft from "./arrow-left.svg";
 import Copy from "./copy.svg";
 import GearSolidFull from "./gear-solid-full.svg";
+import Play from "./play.svg";
 
-export { Calendar, EyeOff, Eye, Mail, Ticket, UserPlus, User, Layers, Users, Plus, Edit, Trash, MiniCalendar, Coupon, LogoutIcon, ArrowLeft, Copy, GearSolidFull };
+export { Calendar, EyeOff, Eye, Mail, Ticket, UserPlus, User, Layers, Users, Plus, Edit, Trash, MiniCalendar, Coupon, LogoutIcon, ArrowLeft, Copy, GearSolidFull, Play };
