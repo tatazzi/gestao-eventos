@@ -4,6 +4,8 @@ import { useState } from "react";
 import Sidebar from "@/components/Sidebar";
 import Header from "@/components/Header";
 import EventsList from "@/components/EventsList";
+import SectorsList from "@/components/SectorsList";
+import CouponsList from "@/components/CouponsList";
 
 export default function Dashboard() {
   const [activeItem, setActiveItem] = useState("eventos");
@@ -17,19 +19,9 @@ export default function Dashboard() {
       case "eventos":
         return <EventsList />;
       case "setores":
-        return (
-          <div className="p-6">
-            <h1 className="text-2xl font-bold text-lightText mb-6">Setores</h1>
-            <p className="text-gray-600">Página de setores em desenvolvimento...</p>
-          </div>
-        );
+        return <SectorsList />;
       case "cupons":
-        return (
-          <div className="p-6">
-            <h1 className="text-2xl font-bold text-lightText mb-6">Cupons</h1>
-            <p className="text-gray-600">Página de cupons em desenvolvimento...</p>
-          </div>
-        );
+        return <CouponsList />;
       case "participantes":
         return (
           <div className="p-6">
