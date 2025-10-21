@@ -6,6 +6,7 @@ import Header from "@/components/Header";
 import EventsList from "@/components/EventsList";
 import SectorsList from "@/components/SectorsList";
 import CouponsList from "@/components/CouponsList";
+import LotsList from "@/components/LotsList";
 
 export default function Dashboard() {
   const [activeItem, setActiveItem] = useState("eventos");
@@ -22,13 +23,8 @@ export default function Dashboard() {
         return <SectorsList />;
       case "cupons":
         return <CouponsList />;
-      case "participantes":
-        return (
-          <div className="p-6">
-            <h1 className="text-2xl font-bold text-lightText mb-6">Participantes</h1>
-            <p className="text-gray-600">Página de participantes em desenvolvimento...</p>
-          </div>
-        );
+      case "lotes":
+        return <LotsList />;
         case "configuracoes":
         return (
           <div className="p-6">

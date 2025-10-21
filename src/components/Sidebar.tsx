@@ -26,8 +26,8 @@ export default function Sidebar({ activeItem, onItemClick }: SidebarProps) {
       icon: Coupon,
     },
     {
-      id: "participantes",
-      label: "Participantes",
+      id: "lotes",
+      label: "Lotes",
       icon: Users,
     },
     {
