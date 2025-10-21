@@ -29,6 +29,13 @@ export default function Dashboard() {
             <p className="text-gray-600">Página de participantes em desenvolvimento...</p>
           </div>
         );
+        case "configuracoes":
+        return (
+          <div className="p-6">
+            <h1 className="text-2xl font-bold text-lightText mb-6">Configurações</h1>
+            <p className="text-gray-600">Página de Configurações em desenvolvimento...</p>
+          </div>
+        );
       default:
         return <EventsList />;
     }

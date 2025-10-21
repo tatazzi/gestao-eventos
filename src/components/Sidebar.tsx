@@ -1,6 +1,7 @@
 "use client";
 
-import { Calendar, Layers, Ticket, Users, MiniCalendar, Coupon } from "@/assets";
+import { Calendar, Layers, Ticket, Users, MiniCalendar, Coupon, GearSolidFull } from "@/assets";
+import Button from "./Button";
 
 type SidebarProps = {
   activeItem: string;
@@ -28,6 +29,11 @@ export default function Sidebar({ activeItem, onItemClick }: SidebarProps) {
       id: "participantes",
       label: "Participantes",
       icon: Users,
+    },
+    {
+      id: "configuracoes",
+      label: "Configurações",
+      icon: GearSolidFull,
     },
   ];
 
