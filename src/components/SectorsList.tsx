@@ -2,6 +2,9 @@
 
 import { useState } from "react";
 import { Plus, Edit, Trash } from "@/assets";
+import Modal from "./Modal";
+import NewSectorForm from "./NewSectorForm";
+import EditSectorForm from "./EditSectorForm";
 
 interface Sector {
   id: string;
@@ -14,7 +17,10 @@ interface Sector {
 }
 
 export default function SectorsList() {
-  const [sectors] = useState<Sector[]>([
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [selectedSector, setSelectedSector] = useState<Sector | null>(null);
+  const [sectors, setSectors] = useState<Sector[]>([
     {
       id: "1",
       name: "Pista",
@@ -44,6 +50,24 @@ export default function SectorsList() {
     }
   ]);
 
+  const handleCreateSector = (sectorData: any) => {
+    setSectors(prev => [...prev, sectorData]);
+    setIsModalOpen(false);
+  };
+
+  const handleEditSector = (sectorData: any) => {
+    setSectors(prev => prev.map(sector => 
+      sector.id === sectorData.id ? sectorData : sector
+    ));
+    setIsEditModalOpen(false);
+    setSelectedSector(null);
+  };
+
+  const handleEditClick = (sector: Sector) => {
+    setSelectedSector(sector);
+    setIsEditModalOpen(true);
+  };
+
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('pt-BR', {
       style: 'currency',
@@ -59,21 +83,19 @@ export default function SectorsList() {
     return Math.round((available / total) * 100);
   };
 
-  const getProgressBarWidth = (available: number, total: number) => {
-    return (available / total) * 100;
-  };
-
   return (
     <div className="p-6">
       <div className="mb-8">
         <div className="flex items-center justify-between mb-2">
           <h1 className="text-3xl font-bold text-gray-900">Setores do Evento</h1>
-          <button className="flex items-center gap-2 bg-gray-900 text-white px-4 py-2 rounded-lg hover:bg-gray-800 transition-colors">
+          <button 
+            onClick={() => setIsModalOpen(true)}
+            className="flex items-center gap-2 bg-gray-900 text-white px-4 py-2 rounded-lg hover:bg-gray-800 transition-colors"
+          >
             <Plus className="h-4 w-4" />
             <span>Novo Setor</span>
           </button>
         </div>
-        <p className="text-gray-600 text-lg">Gerencie os setores e capacidades dos eventos</p>
       </div>
       <div className="bg-white rounded-lg shadow-sm border border-gray-200">
         <div className="p-6 border-b border-gray-200">
@@ -109,12 +131,6 @@ export default function SectorsList() {
                       <div className="text-sm text-gray-900">
                         {formatNumber(sector.available)} ({getAvailablePercentage(sector.available, sector.totalCapacity)}%)
                       </div>
-                      <div className="w-full bg-gray-200 rounded-full h-2">
-                        <div 
-                          className="bg-gray-800 h-2 rounded-full transition-all duration-300"
-                          style={{ width: `${getProgressBarWidth(sector.available, sector.totalCapacity)}%` }}
-                        ></div>
-                      </div>
                     </div>
                   </td>
                   <td className="px-6 py-4 text-sm text-gray-900">
@@ -127,7 +143,10 @@ export default function SectorsList() {
                   </td>
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-2">
-                      <button className="p-1 text-gray-400 hover:text-gray-600 transition-colors">
+                      <button 
+                        onClick={() => handleEditClick(sector)}
+                        className="p-1 text-gray-400 hover:text-gray-600 transition-colors"
+                      >
                         <Edit className="h-4 w-4" />
                       </button>
                       <button className="p-1 text-gray-400 hover:text-red-600 transition-colors">
@@ -141,6 +160,37 @@ export default function SectorsList() {
           </table>
         </div>
       </div>
+
+      <Modal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        title="Novo Setor"
+      >
+        <NewSectorForm
+          onSubmit={handleCreateSector}
+          onCancel={() => setIsModalOpen(false)}
+        />
+      </Modal>
+
+      <Modal
+        isOpen={isEditModalOpen}
+        onClose={() => {
+          setIsEditModalOpen(false);
+          setSelectedSector(null);
+        }}
+        title="Editar Setor"
+      >
+        {selectedSector && (
+          <EditSectorForm
+            sectorData={selectedSector}
+            onSubmit={handleEditSector}
+            onCancel={() => {
+              setIsEditModalOpen(false);
+              setSelectedSector(null);
+            }}
+          />
+        )}
+      </Modal>
     </div>
   );
 }
