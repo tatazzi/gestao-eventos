@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Calendar, Ticket } from "@/assets";
+import { useSettings } from "@/hooks/useSettings";
 
 interface PublicEvent {
   id: string;
@@ -18,8 +19,10 @@ interface PublicEvent {
 
 export default function PublicEventsPage() {
   const router = useRouter();
+  const { settings } = useSettings();
   const [events, setEvents] = useState<PublicEvent[]>([]);
   const [loading, setLoading] = useState(true);
+
 
   useEffect(() => {
     const fetchEvents = async () => {
@@ -66,7 +69,7 @@ export default function PublicEventsPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center">
-              <div className="bg-gray-900 rounded-lg p-2 mr-3 align-middle">
+              <div className="rounded-lg p-2 mr-3 align-middle" style={{ backgroundColor: settings?.primaryColor }}>
                 <Ticket className=" h-9 w-9 text-white" />
               </div>
               <span className="text-xl font-bold text-gray-900 align-middle">EventosApp</span>
@@ -109,11 +112,18 @@ export default function PublicEventsPage() {
                 </div>
 
                 <button 
-                  onClick={() => handleBuyTicket(event)}
-                  className="w-full bg-gray-900 text-white py-2 px-4 rounded-lg hover:bg-gray-800 transition-colors font-medium"
-                >
-                  Comprar
-                </button>
+  onClick={() => handleBuyTicket(event)}
+  className="w-full text-white py-2 px-4 rounded-lg transition-colors font-medium"
+  style={{ backgroundColor: settings?.primaryColor || '#1f2937' }} // cor padrão
+  onMouseEnter={(e) => {
+    e.currentTarget.style.backgroundColor = settings?.secondaryColor || '#374151';
+  }}
+  onMouseLeave={(e) => {
+    e.currentTarget.style.backgroundColor = settings?.primaryColor || '#1f2937';
+  }}
+>
+  Comprar
+</button>
               </div>
             </div>
           ))}
@@ -126,7 +136,7 @@ export default function PublicEventsPage() {
         )}
       </main>
 
-      <footer className="bg-gray-900 text-white py-8">
+      <footer className="text-white py-8" style={{ backgroundColor: settings?.primaryColor }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <div className="mb-4 md:mb-0">

@@ -208,7 +208,6 @@
       "status": "scheduled"
     }
   ],
-  
   "users": [
     {
       "id": "1",
@@ -222,6 +221,12 @@
       "password": "senha123",
       "createdAt": "2024-01-15T10:00:00Z"
     }
+  ],
+  "settings": [
+    {
+      "id": "1",
+      "primaryColor": "#838333",
+      "secondaryColor": "#000000"
+    }
   ]
- 
 }

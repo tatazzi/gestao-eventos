@@ -7,6 +7,7 @@ import EventsList from "@/components/EventsList";
 import SectorsList from "@/components/SectorsList";
 import CouponsList from "@/components/CouponsList";
 import LotsList from "@/components/LotsList";
+import ColorSettings from "@/components/ColorSettings";
 
 export default function Dashboard() {
   const [activeItem, setActiveItem] = useState("eventos");
@@ -37,8 +38,8 @@ export default function Dashboard() {
         case "configuracoes":
         return (
           <div className="p-6">
-            <h1 className="text-2xl font-bold text-lightText mb-6">Configurações</h1>
-            <p className="text-gray-600">Página de Configurações em desenvolvimento...</p>
+            <h1 className="text-2xl font-bold text-gray-900 mb-6">Configurações</h1>
+            <ColorSettings />
           </div>
         );
       default:
