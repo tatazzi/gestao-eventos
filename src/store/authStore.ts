@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
+import { removeToken } from '@/hooks/useAuth';
 
 export interface User {
   id: string;
@@ -38,10 +39,13 @@ export const useAuthStore = create<AuthState>()(
         isAuthenticated: true 
       }),
       
-      logout: () => set({ 
-        user: null, 
-        isAuthenticated: false 
-      }),
+      logout: () => {
+        removeToken();
+        set({ 
+          user: null, 
+          isAuthenticated: false 
+        });
+      },
       
       updateUser: (userData) => set((state) => ({
         user: state.user ? { ...state.user, ...userData } : null

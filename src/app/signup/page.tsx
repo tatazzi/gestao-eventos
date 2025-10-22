@@ -79,15 +79,16 @@ export default function Signup() {
 
     try {
       const { confirmPassword, ...signupData } = formData;
-      const createdUser = await signup(signupData);
+      const response = await signup(signupData);
       
-      if (createdUser) {
-        const { password, ...userWithoutPassword } = createdUser;
-        login(userWithoutPassword);
+      if (response) {
+
+        login(response.user);
+        router.push('/dashboard');
       }
-      
-      router.push('/dashboard');
     } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Erro ao criar conta';
+      setFormError(errorMessage);
       console.error("Signup error:", err);
     }
   };

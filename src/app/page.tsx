@@ -21,14 +21,16 @@ export default function Login() {
     setLoginError("");
 
     try {
-      const user = await loginApi({ email, password });
+      const response = await loginApi({ email, password });
       
-      if (user) {
-        const { password: _, ...userWithoutPassword } = user;
-        login(userWithoutPassword);
+      if (response) {
+
+        login(response.user);
         router.push('/dashboard');
       }
     } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Erro ao fazer login';
+      setLoginError(errorMessage);
       console.error("Login error:", err);
     }
   };
