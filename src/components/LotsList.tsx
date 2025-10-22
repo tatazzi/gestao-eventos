@@ -5,58 +5,13 @@ import { Plus, Edit, Trash, Copy, Play } from "@/assets";
 import Modal from "./Modal";
 import NewLotForm from "./NewLotForm";
 import EditLotForm from "./EditLotForm";
-
-interface Lot {
-  id: string;
-  name: string;
-  sector: string;
-  price: number;
-  sold: number;
-  total: number;
-  startDate: string;
-  endDate: string;
-  status: "selling" | "scheduled" | "closed";
-}
+import { useLots, Lot } from "@/hooks/useLots";
 
 export default function LotsList() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedLot, setSelectedLot] = useState<Lot | null>(null);
-  const [lots] = useState<Lot[]>([
-    {
-      id: "1",
-      name: "1º Lote",
-      sector: "Pista",
-      price: 80.00,
-      sold: 500,
-      total: 1000,
-      startDate: "01/03/25",
-      endDate: "15/03/25",
-      status: "selling"
-    },
-    {
-      id: "2",
-      name: "2º Lote",
-      sector: "Pista",
-      price: 100.00,
-      sold: 0,
-      total: 800,
-      startDate: "16/03/25",
-      endDate: "30/03/25",
-      status: "scheduled"
-    },
-    {
-      id: "3",
-      name: "1º Lote",
-      sector: "Arquibancada",
-      price: 50.00,
-      sold: 2000,
-      total: 2000,
-      startDate: "01/03/25",
-      endDate: "10/03/25",
-      status: "closed"
-    }
-  ]);
+  const { lots, loading, error, createLot, updateLot, deleteLot } = useLots();
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('pt-BR', {
@@ -89,21 +44,59 @@ export default function LotsList() {
     );
   };
 
-  const handleCreateLot = (lotData: any) => {
-    console.log("Criar lote:", lotData);
-    setIsModalOpen(false);
+  const handleCreateLot = async (lotData: any) => {
+    try {
+      await createLot(lotData);
+      setIsModalOpen(false);
+    } catch (error) {
+      console.error('Error creating lot:', error);
+    }
   };
 
-  const handleEditLot = (lotData: any) => {
-    console.log("Editar lote:", lotData);
-    setIsEditModalOpen(false);
-    setSelectedLot(null);
+  const handleEditLot = async (lotData: any) => {
+    try {
+      await updateLot(lotData.id, lotData);
+      setIsEditModalOpen(false);
+      setSelectedLot(null);
+    } catch (error) {
+      console.error('Error updating lot:', error);
+    }
+  };
+
+  const handleDeleteLot = async (lotId: string) => {
+    if (confirm('Tem certeza que deseja excluir este lote?')) {
+      try {
+        await deleteLot(lotId);
+      } catch (error) {
+        console.error('Error deleting lot:', error);
+      }
+    }
   };
 
   const handleEditClick = (lot: Lot) => {
     setSelectedLot(lot);
     setIsEditModalOpen(true);
   };
+
+  if (loading) {
+    return (
+      <div className="p-6">
+        <div className="flex items-center justify-center h-64">
+          <div className="text-gray-600">Carregando lotes...</div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="p-6">
+        <div className="flex items-center justify-center h-64">
+          <div className="text-red-600">Erro ao carregar lotes: {error}</div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="p-6">
@@ -165,7 +158,10 @@ export default function LotsList() {
                           >
                             <Edit className="h-4 w-4" />
                           </button>
-                          <button className="p-1 text-gray-400 hover:text-red-600 transition-colors">
+                          <button 
+                            onClick={() => handleDeleteLot(lot.id)}
+                            className="p-1 text-gray-400 hover:text-red-600 transition-colors"
+                          >
                             <Trash className="h-4 w-4" />
                           </button>
                     </div>
