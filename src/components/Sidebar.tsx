@@ -94,6 +94,21 @@ export default function Sidebar({ activeItem, onItemClick, isOpen, onClose }: Si
               );
             })}
           </nav>
+
+          <div className="mt-8 pt-6 border-t border-gray-200">
+            <button 
+              onClick={() => {
+                window.open('/events', '_blank');
+                if (window.innerWidth < 1024) {
+                  onClose();
+                }
+              }}
+              className="w-full flex items-center justify-center px-4 py-2 bg-brandPrimary text-white rounded-lg hover:bg-brandPrimary/80 transition-colors font-medium"
+            >
+              <Ticket className="h-10 w-10 mt-4 mr-2" />
+              Ver Eventos Públicos
+            </button>
+          </div>
         </div>
       </div>
     </>
