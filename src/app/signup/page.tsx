@@ -4,10 +4,12 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Calendar, UserPlus } from "@/assets";
 import { useAuth } from "@/hooks/useAuth";
+import { useAuthStore } from "@/store/authStore";
 
 export default function Signup() {
   const router = useRouter();
   const { signup, loading, error } = useAuth();
+  const { login } = useAuthStore();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [formError, setFormError] = useState("");
@@ -77,7 +79,12 @@ export default function Signup() {
 
     try {
       const { confirmPassword, ...signupData } = formData;
-      await signup(signupData);
+      const createdUser = await signup(signupData);
+      
+      if (createdUser) {
+        const { password, ...userWithoutPassword } = createdUser;
+        login(userWithoutPassword);
+      }
       
       router.push('/dashboard');
     } catch (err) {

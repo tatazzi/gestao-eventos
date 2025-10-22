@@ -4,17 +4,33 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Calendar, Eye, Mail, Ticket } from "@/assets";
 import Button from "@/components/Button";
+import { useAuth } from "@/hooks/useAuth";
+import { useAuthStore } from "@/store/authStore";
 
 export default function Login() {
   const router = useRouter();
+  const { login: loginApi, loading, error } = useAuth();
+  const { login } = useAuthStore();
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loginError, setLoginError] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Login attempt:", { email, password });
-    router.push('/dashboard');
+    setLoginError("");
+
+    try {
+      const user = await loginApi({ email, password });
+      
+      if (user) {
+        const { password: _, ...userWithoutPassword } = user;
+        login(userWithoutPassword);
+        router.push('/dashboard');
+      }
+    } catch (err) {
+      console.error("Login error:", err);
+    }
   };
 
   const goToSignup = () => {
@@ -45,6 +61,15 @@ export default function Login() {
             <p className="text-gray-600 mb-8">
               Acesse o painel de gestão de eventos
             </p>
+            
+            {(error || loginError) && (
+              <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+                <p className="text-sm text-red-600 text-center">
+                  {loginError || error}
+                </p>
+              </div>
+            )}
+            
             <form onSubmit={handleSubmit} className="space-y-6">
               <div>
                 <label
@@ -98,7 +123,13 @@ export default function Login() {
                 </div>
               </div>
 
-              <Button type="submit">Entrar</Button>
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full h-12 text-base font-semibold rounded-lg bg-brandPrimary text-white hover:bg-brandPrimary/80 transition-colors duration-200 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {loading ? "Entrando..." : "Entrar"}
+              </button>
             </form>
             <div className="mt-6 text-center">
               <span className="text-gray-600">ou</span>

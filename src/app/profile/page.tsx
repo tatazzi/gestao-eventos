@@ -1,38 +1,109 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, LogoutIcon, User } from "@/assets";
+import { useAuthStore } from "@/store/authStore";
+
+const API_BASE_URL = 'http://localhost:3001';
 
 export default function ProfilePage() {
   const router = useRouter();
-  const [formData, setFormData] = useState({
-    firstName: "",
-    lastName: "",
-    email: "",
-    phone: "",
-    companyName: "",
-    tradeName: "",
-    cnpj: "",
+  const { user, logout, updateUser } = useAuthStore();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+  const [passwordData, setPasswordData] = useState({
+    currentPassword: "",
     newPassword: "",
     confirmNewPassword: "",
   });
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  useEffect(() => {
+    if (!user) {
+      router.push('/');
+    }
+  }, [user, router]);
+
+  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setPasswordData(prev => ({
       ...prev,
       [name]: value
     }));
   };
 
-  const handleChangePassword = () => {
-    console.log("Alterar senha");
+  const handleChangePassword = async () => {
+    setError("");
+    setSuccess("");
+
+    if (!passwordData.newPassword || !passwordData.confirmNewPassword) {
+      setError("Por favor, preencha todos os campos de senha");
+      return;
+    }
+
+    if (passwordData.newPassword !== passwordData.confirmNewPassword) {
+      setError("As senhas não coincidem");
+      return;
+    }
+
+    if (passwordData.newPassword.length < 6) {
+      setError("A senha deve ter no mínimo 6 caracteres");
+      return;
+    }
+
+    if (!user) return;
+
+    setLoading(true);
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/users/${user.id}`);
+      if (!response.ok) {
+        throw new Error('Erro ao buscar usuário');
+      }
+
+      const userData = await response.json();
+
+      if (userData.password !== passwordData.currentPassword) {
+        throw new Error('Senha atual incorreta');
+      }
+
+      const updateResponse = await fetch(`${API_BASE_URL}/users/${user.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          ...userData,
+          password: passwordData.newPassword,
+        }),
+      });
+
+      if (!updateResponse.ok) {
+        throw new Error('Erro ao atualizar senha');
+      }
+
+      setSuccess("Senha alterada com sucesso!");
+      setPasswordData({
+        currentPassword: "",
+        newPassword: "",
+        confirmNewPassword: "",
+      });
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Erro ao alterar senha');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleLogout = () => {
-    console.log("Sair");
+    logout();
+    router.push('/');
   };
+
+  if (!user) {
+    return null;
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -56,29 +127,27 @@ export default function ProfilePage() {
             <h2 className="text-xl font-semibold text-gray-900 mb-6">Dados Gerais</h2>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
+              <div className="md:col-span-2">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Nome
+                  Nome Completo
                 </label>
                 <input
                   type="text"
-                  name="firstName"
-                  value={formData.firstName}
-                  onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  value={user.fullName}
+                  disabled
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50 text-gray-700"
                 />
               </div>
               
-              <div>
+              <div className="md:col-span-2">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Sobrenome
+                  Nome do Estabelecimento
                 </label>
                 <input
                   type="text"
-                  name="lastName"
-                  value={formData.lastName}
-                  onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  value={user.establishmentName}
+                  disabled
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50 text-gray-700"
                 />
               </div>
               
@@ -88,10 +157,9 @@ export default function ProfilePage() {
                 </label>
                 <input
                   type="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  value={user.email}
+                  disabled
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50 text-gray-700"
                 />
               </div>
               
@@ -101,10 +169,9 @@ export default function ProfilePage() {
                 </label>
                 <input
                   type="tel"
-                  name="phone"
-                  value={formData.phone}
-                  onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  value={user.phone}
+                  disabled
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50 text-gray-700"
                 />
               </div>
               
@@ -114,10 +181,9 @@ export default function ProfilePage() {
                 </label>
                 <input
                   type="text"
-                  name="companyName"
-                  value={formData.companyName}
-                  onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  value={user.companyName}
+                  disabled
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50 text-gray-700"
                 />
               </div>
               
@@ -127,23 +193,21 @@ export default function ProfilePage() {
                 </label>
                 <input
                   type="text"
-                  name="tradeName"
-                  value={formData.tradeName}
-                  onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  value={user.tradeName}
+                  disabled
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50 text-gray-700"
                 />
               </div>
               
               <div className="md:col-span-2">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  CNPJ
+                  CPF/CNPJ
                 </label>
                 <input
                   type="text"
-                  name="cnpj"
-                  value={formData.cnpj}
-                  onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  value={user.cpfCnpj}
+                  disabled
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50 text-gray-700"
                 />
               </div>
             </div>
@@ -155,6 +219,30 @@ export default function ProfilePage() {
             <div className="space-y-4">
               <h3 className="text-lg font-medium text-gray-800">Alterar Senha</h3>
               
+              {error && (
+                <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
+                  <p className="text-sm text-red-600">{error}</p>
+                </div>
+              )}
+
+              {success && (
+                <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
+                  <p className="text-sm text-green-600">{success}</p>
+                </div>
+              )}
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Senha Atual
+                </label>
+                <input
+                  type="password"
+                  name="currentPassword"
+                  value={passwordData.currentPassword}
+                  onChange={handlePasswordChange}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+              </div>
               
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -163,8 +251,8 @@ export default function ProfilePage() {
                 <input
                   type="password"
                   name="newPassword"
-                  value={formData.newPassword}
-                  onChange={handleInputChange}
+                  value={passwordData.newPassword}
+                  onChange={handlePasswordChange}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
               </div>
@@ -176,8 +264,8 @@ export default function ProfilePage() {
                 <input
                   type="password"
                   name="confirmNewPassword"
-                  value={formData.confirmNewPassword}
-                  onChange={handleInputChange}
+                  value={passwordData.confirmNewPassword}
+                  onChange={handlePasswordChange}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
               </div>
@@ -185,9 +273,10 @@ export default function ProfilePage() {
               <div className="flex justify-end">
                 <button
                   onClick={handleChangePassword}
-                  className="bg-gray-800 text-white px-6 py-2 rounded-md hover:bg-gray-700 transition-colors"
+                  disabled={loading}
+                  className="bg-gray-800 text-white px-6 py-2 rounded-md hover:bg-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  Alterar Senha
+                  {loading ? "Alterando..." : "Alterar Senha"}
                 </button>
               </div>
             </div>
