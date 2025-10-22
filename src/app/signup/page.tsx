@@ -3,11 +3,14 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Calendar, UserPlus } from "@/assets";
+import { useAuth } from "@/hooks/useAuth";
 
 export default function Signup() {
   const router = useRouter();
+  const { signup, loading, error } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [formError, setFormError] = useState("");
   const [formData, setFormData] = useState({
     fullName: "",
     establishmentName: "",
@@ -58,10 +61,28 @@ export default function Signup() {
     handleInputChange('phone', formatted);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Signup attempt:", formData);
-    router.push('/dashboard');
+    setFormError("");
+
+    if (formData.password !== formData.confirmPassword) {
+      setFormError("As senhas não coincidem");
+      return;
+    }
+
+    if (formData.password.length < 6) {
+      setFormError("A senha deve ter no mínimo 6 caracteres");
+      return;
+    }
+
+    try {
+      const { confirmPassword, ...signupData } = formData;
+      await signup(signupData);
+      
+      router.push('/dashboard');
+    } catch (err) {
+      console.error("Signup error:", err);
+    }
   };
 
   const goToLogin = () => {
@@ -92,6 +113,14 @@ export default function Signup() {
                 Cadastre-se para começar a gerenciar seus eventos
               </p>
             </div>
+
+            {(error || formError) && (
+              <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+                <p className="text-sm text-red-600 text-center">
+                  {formError || error}
+                </p>
+              </div>
+            )}
 
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -268,10 +297,20 @@ export default function Signup() {
               <div className="flex justify-center">
                 <button
                   type="submit"
-                  className="flex items-center justify-center gap-2 w-full max-w-xs h-12 text-base font-semibold rounded-lg bg-brandPrimary text-white hover:bg-brandPrimary/80 transition-colors duration-200 cursor-pointer"
+                  disabled={loading}
+                  className="flex items-center justify-center gap-2 w-full max-w-xs h-12 text-base font-semibold rounded-lg bg-brandPrimary text-white hover:bg-brandPrimary/80 transition-colors duration-200 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  <UserPlus className="h-5 w-5" />
-                  Criar Conta
+                  {loading ? (
+                    <>
+                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                      Criando conta...
+                    </>
+                  ) : (
+                    <>
+                      <UserPlus className="h-5 w-5" />
+                      Criar Conta
+                    </>
+                  )}
                 </button>
               </div>
             </form>
