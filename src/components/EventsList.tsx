@@ -5,60 +5,50 @@ import { Plus, Edit, Trash } from "@/assets";
 import Modal from "./Modal";
 import NewEventForm from "./NewEventForm";
 import EditEventForm from "./EditEventForm";
+import { useEvents, Event } from "@/hooks/useEvents";
 
 export default function EventsList() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [selectedEvent, setSelectedEvent] = useState<any>(null);
-  const [events, setEvents] = useState([
-    {
-      id: "001",
-      name: "Festival de Música 2025",
-      date: "15/03/2025",
-      time: "19:00 - 23:00",
-      venue: "Centro de Eventos",
-      location: "São Paulo, SP",
-      status: "Publicado",
-      ticketsSold: 1250,
-      totalTickets: 2000,
-    },
-    {
-      id: "002",
-      name: "Conferência Tech",
-      date: "22/04/2025",
-      time: "09:00 - 18:00",
-      venue: "Hotel Convention",
-      location: "Rio de Janeiro, RJ",
-      status: "Rascunho",
-      ticketsSold: 0,
-      totalTickets: 500,
-    },
-  ]);
+  const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
+  const { events, loading, error, createEvent, updateEvent, deleteEvent } = useEvents();
 
-  const handleNewEvent = (eventData: any) => {
-    setEvents(prev => [...prev, eventData]);
-    setIsModalOpen(false);
+  const handleNewEvent = async (eventData: any) => {
+    try {
+      await createEvent(eventData);
+      setIsModalOpen(false);
+    } catch (error) {
+      console.error('Error creating event:', error);
+    }
   };
 
-  const handleOpenModal = () => {
-    setIsModalOpen(true);
+  const handleEditEvent = async (eventData: any) => {
+    try {
+      await updateEvent(eventData.id, eventData);
+      setIsEditModalOpen(false);
+      setSelectedEvent(null);
+    } catch (error) {
+      console.error('Error updating event:', error);
+    }
+  };
+
+  const handleDeleteEvent = async (eventId: string) => {
+    if (confirm('Tem certeza que deseja excluir este evento?')) {
+      try {
+        await deleteEvent(eventId);
+      } catch (error) {
+        console.error('Error deleting event:', error);
+      }
+    }
+  };
+
+  const handleOpenEditModal = (event: Event) => {
+    setSelectedEvent(event);
+    setIsEditModalOpen(true);
   };
 
   const handleCloseModal = () => {
     setIsModalOpen(false);
-  };
-
-  const handleEditEvent = (eventData: any) => {
-    setEvents(prev => prev.map(event => 
-      event.id === eventData.id ? eventData : event
-    ));
-    setIsEditModalOpen(false);
-    setSelectedEvent(null);
-  };
-
-  const handleOpenEditModal = (event: any) => {
-    setSelectedEvent(event);
-    setIsEditModalOpen(true);
   };
 
   const handleCloseEditModal = () => {
@@ -66,12 +56,32 @@ export default function EventsList() {
     setSelectedEvent(null);
   };
 
+  if (loading) {
+    return (
+      <div className="p-6">
+        <div className="flex items-center justify-center h-64">
+          <div className="text-gray-600">Carregando eventos...</div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="p-6">
+        <div className="flex items-center justify-center h-64">
+          <div className="text-red-600">Erro ao carregar eventos: {error}</div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="p-6">
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-3xl font-bold text-lightText">Lista de Eventos</h1>
         <button 
-          onClick={handleOpenModal}
+          onClick={() => setIsModalOpen(true)}
           className="flex items-center gap-2 bg-brandPrimary text-white px-4 py-2 rounded-lg hover:bg-brandPrimary/80 transition-colors"
         >
           <Plus className="h-4 w-4" />
@@ -139,7 +149,10 @@ export default function EventsList() {
                     >
                       <Edit className="h-4 w-4" />
                     </button>
-                    <button className="p-1 text-gray-400 hover:text-red-500 transition-colors">
+                    <button 
+                      onClick={() => handleDeleteEvent(event.id)}
+                      className="p-1 text-gray-400 hover:text-red-500 transition-colors"
+                    >
                       <Trash className="h-4 w-4" />
                     </button>
                   </div>
