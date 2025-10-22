@@ -98,10 +98,7 @@ export default function SectorsList() {
         </div>
       </div>
       <div className="bg-white rounded-lg shadow-sm border border-gray-200">
-        <div className="p-6 border-b border-gray-200">
-          <h2 className="text-xl font-semibold text-gray-900">Lista de Setores</h2>
-        </div>
-        
+      
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead className="bg-gray-50">
@@ -158,6 +155,11 @@ export default function SectorsList() {
               ))}
             </tbody>
           </table>
+        </div>
+      </div>
+      <div className="flex items-center justify-between mt-6">
+        <div className="text-sm text-gray-500">
+          Mostrando {sectors.length} resultados
         </div>
       </div>
 

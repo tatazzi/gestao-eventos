@@ -69,7 +69,7 @@ export default function EventsList() {
   return (
     <div className="p-6">
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-lightText">Lista de Eventos</h1>
+        <h1 className="text-3xl font-bold text-lightText">Lista de Eventos</h1>
         <button 
           onClick={handleOpenModal}
           className="flex items-center gap-2 bg-brandPrimary text-white px-4 py-2 rounded-lg hover:bg-brandPrimary/80 transition-colors"

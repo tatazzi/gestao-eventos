@@ -10,9 +10,18 @@ import LotsList from "@/components/LotsList";
 
 export default function Dashboard() {
   const [activeItem, setActiveItem] = useState("eventos");
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const handleItemClick = (item: string) => {
     setActiveItem(item);
+  };
+
+  const handleToggleSidebar = () => {
+    setIsSidebarOpen(!isSidebarOpen);
+  };
+
+  const handleCloseSidebar = () => {
+    setIsSidebarOpen(false);
   };
 
   const renderContent = () => {
@@ -39,9 +48,17 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Sidebar activeItem={activeItem} onItemClick={handleItemClick} />
-      <Header />
-      <main className="ml-64 pt-16">
+      <Sidebar 
+        activeItem={activeItem} 
+        onItemClick={handleItemClick}
+        isOpen={isSidebarOpen}
+        onClose={handleCloseSidebar}
+      />
+      <Header 
+        isSidebarOpen={isSidebarOpen}
+        onToggleSidebar={handleToggleSidebar}
+      />
+      <main className="lg:ml-64 pt-16 ">
         {renderContent()}
       </main>
     </div>

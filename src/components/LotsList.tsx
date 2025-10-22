@@ -121,12 +121,7 @@ export default function LotsList() {
       </div>
 
       <div className="bg-white rounded-lg shadow-sm border border-gray-200">
-        <div className="p-6 border-b border-gray-200">
-          <div className="flex items-center justify-between">
-            <h2 className="text-xl font-semibold text-gray-900">Lista de Lotes</h2>
-            <span className="text-sm text-gray-600">24 lotes encontrados</span>
-          </div>
-        </div>
+        
         
         <div className="overflow-x-auto">
           <table className="w-full">
@@ -164,26 +159,15 @@ export default function LotsList() {
                   </td>
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-2">
-                      {lot.status === "closed" ? (
-                        <button className="p-1 text-gray-400 hover:text-gray-600 transition-colors">
-                          <Copy className="h-4 w-4" />
-                        </button>
-                      ) : (
-                        <>
                           <button 
                             onClick={() => handleEditClick(lot)}
                             className="p-1 text-gray-400 hover:text-gray-600 transition-colors"
                           >
                             <Edit className="h-4 w-4" />
                           </button>
-                          <button className="p-1 text-gray-400 hover:text-gray-600 transition-colors">
-                            <Play className="h-4 w-4" />
-                          </button>
                           <button className="p-1 text-gray-400 hover:text-red-600 transition-colors">
                             <Trash className="h-4 w-4" />
                           </button>
-                        </>
-                      )}
                     </div>
                   </td>
                 </tr>
@@ -192,12 +176,12 @@ export default function LotsList() {
           </table>
         </div>
         
-        <div className="px-6 py-4 border-t border-gray-200 bg-gray-50">
+      </div>
+        <div className=" py-4 border-t border-gray-200 bg-gray-50">
           <p className="text-sm text-gray-700">
-            Mostrando 1 a {lots.length} de 24 resultados
+            Mostrando {lots.length} resultados
           </p>
         </div>
-      </div>
 
       <Modal
         isOpen={isModalOpen}

@@ -176,12 +176,12 @@ export default function CouponsList() {
           </table>
         </div>
         
-        <div className="px-6 py-4 border-t border-gray-200 bg-gray-50">
+      </div>
+        <div className="py-4 border-t border-gray-200 bg-gray-50">
           <p className="text-sm text-gray-700">
-            Mostrando 1 a {coupons.length} de {coupons.length} resultados
+            Mostrando {coupons.length} resultados 
           </p>
         </div>
-      </div>
 
       <Modal
         isOpen={isModalOpen}
