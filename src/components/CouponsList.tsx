@@ -5,65 +5,67 @@ import { Plus, Edit, Trash, Copy } from "@/assets";
 import Modal from "./Modal";
 import NewCouponForm from "./NewCouponForm";
 import EditCouponForm from "./EditCouponForm";
-
-interface Coupon {
-  id: string;
-  code: string;
-  type: "percentage" | "fixed";
-  discount: number;
-  validityStart: string;
-  validityEnd: string;
-  usage: number;
-  maxUsage: number;
-  status: "active" | "inactive";
-}
+import { useCoupons, Coupon } from "@/hooks/useCoupons";
 
 export default function CouponsList() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedCoupon, setSelectedCoupon] = useState<Coupon | null>(null);
-  const [coupons, setCoupons] = useState<Coupon[]>([
-    {
-      id: "1",
-      code: "DESCONTO20",
-      type: "percentage",
-      discount: 20,
-      validityStart: "01/01/2025",
-      validityEnd: "31/12/2025",
-      usage: 45,
-      maxUsage: 100,
-      status: "active"
-    },
-    {
-      id: "2",
-      code: "FIXO50",
-      type: "fixed",
-      discount: 50,
-      validityStart: "15/03/2025",
-      validityEnd: "30/04/2025",
-      usage: 12,
-      maxUsage: 50,
-      status: "inactive"
-    }
-  ]);
+  const { coupons, loading, error, createCoupon, updateCoupon, deleteCoupon } = useCoupons();
 
-  const handleCreateCoupon = (couponData: any) => {
-    setCoupons(prev => [...prev, couponData]);
-    setIsModalOpen(false);
+  const handleCreateCoupon = async (couponData: any) => {
+    try {
+      await createCoupon(couponData);
+      setIsModalOpen(false);
+    } catch (error) {
+      console.error('Error creating coupon:', error);
+    }
   };
 
-  const handleEditCoupon = (couponData: any) => {
-    setCoupons(prev => prev.map(coupon => 
-      coupon.id === couponData.id ? couponData : coupon
-    ));
-    setIsEditModalOpen(false);
-    setSelectedCoupon(null);
+  const handleEditCoupon = async (couponData: any) => {
+    try {
+      await updateCoupon(couponData.id, couponData);
+      setIsEditModalOpen(false);
+      setSelectedCoupon(null);
+    } catch (error) {
+      console.error('Error updating coupon:', error);
+    }
+  };
+
+  const handleDeleteCoupon = async (couponId: string) => {
+    if (confirm('Tem certeza que deseja excluir este cupom?')) {
+      try {
+        await deleteCoupon(couponId);
+      } catch (error) {
+        console.error('Error deleting coupon:', error);
+      }
+    }
   };
 
   const handleEditClick = (coupon: Coupon) => {
     setSelectedCoupon(coupon);
     setIsEditModalOpen(true);
   };
+
+  if (loading) {
+    return (
+      <div className="p-6">
+        <div className="flex items-center justify-center h-64">
+          <div className="text-gray-600">Carregando cupons...</div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="p-6">
+        <div className="flex items-center justify-center h-64">
+          <div className="text-red-600">Erro ao carregar cupons: {error}</div>
+        </div>
+      </div>
+    );
+  }
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('pt-BR', {
@@ -81,7 +83,7 @@ export default function CouponsList() {
   };
 
   const formatValidity = (start: string, end: string) => {
-    return `${start} - ${end}`;
+    return `${start} / ${end}`;
   };
 
   const formatUsage = (usage: number, maxUsage: number) => {
@@ -165,7 +167,10 @@ export default function CouponsList() {
                       <button className="p-1 text-gray-400 hover:text-gray-600 transition-colors">
                         <Copy className="h-4 w-4" />
                       </button>
-                      <button className="p-1 text-gray-400 hover:text-red-600 transition-colors">
+                      <button 
+                        onClick={() => handleDeleteCoupon(coupon.id)}
+                        className="p-1 text-gray-400 hover:text-red-600 transition-colors"
+                      >
                         <Trash className="h-4 w-4" />
                       </button>
                     </div>
