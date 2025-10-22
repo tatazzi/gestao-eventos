@@ -5,68 +5,67 @@ import { Plus, Edit, Trash } from "@/assets";
 import Modal from "./Modal";
 import NewSectorForm from "./NewSectorForm";
 import EditSectorForm from "./EditSectorForm";
-
-interface Sector {
-  id: string;
-  name: string;
-  description: string;
-  totalCapacity: number;
-  available: number;
-  basePrice: number;
-  status: "active" | "inactive";
-}
+import { useSectors, Sector } from "@/hooks/useSectors";
 
 export default function SectorsList() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedSector, setSelectedSector] = useState<Sector | null>(null);
-  const [sectors, setSectors] = useState<Sector[]>([
-    {
-      id: "1",
-      name: "Pista",
-      description: "Área principal do evento",
-      totalCapacity: 5000,
-      available: 250,
-      basePrice: 150.00,
-      status: "active"
-    },
-    {
-      id: "2",
-      name: "Camarote VIP",
-      description: "Área premium com vista privilegiada",
-      totalCapacity: 200,
-      available: 15,
-      basePrice: 450.00,
-      status: "active"
-    },
-    {
-      id: "3",
-      name: "Arquibancada",
-      description: "Setor com assentos numerados",
-      totalCapacity: 1500,
-      available: 680,
-      basePrice: 80.00,
-      status: "active"
-    }
-  ]);
+  const { sectors, loading, error, createSector, updateSector, deleteSector } = useSectors();
 
-  const handleCreateSector = (sectorData: any) => {
-    setSectors(prev => [...prev, sectorData]);
-    setIsModalOpen(false);
+  const handleCreateSector = async (sectorData: any) => {
+    try {
+      await createSector(sectorData);
+      setIsModalOpen(false);
+    } catch (error) {
+      console.error('Error creating sector:', error);
+    }
   };
 
-  const handleEditSector = (sectorData: any) => {
-    setSectors(prev => prev.map(sector => 
-      sector.id === sectorData.id ? sectorData : sector
-    ));
-    setIsEditModalOpen(false);
-    setSelectedSector(null);
+  const handleEditSector = async (sectorData: any) => {
+    try {
+      await updateSector(sectorData.id, sectorData);
+      setIsEditModalOpen(false);
+      setSelectedSector(null);
+    } catch (error) {
+      console.error('Error updating sector:', error);
+    }
+  };
+
+  const handleDeleteSector = async (sectorId: string) => {
+    if (confirm('Tem certeza que deseja excluir este setor?')) {
+      try {
+        await deleteSector(sectorId);
+      } catch (error) {
+        console.error('Error deleting sector:', error);
+      }
+    }
   };
 
   const handleEditClick = (sector: Sector) => {
     setSelectedSector(sector);
     setIsEditModalOpen(true);
   };
+
+  if (loading) {
+    return (
+      <div className="p-6">
+        <div className="flex items-center justify-center h-64">
+          <div className="text-gray-600">Carregando setores...</div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="p-6">
+        <div className="flex items-center justify-center h-64">
+          <div className="text-red-600">Erro ao carregar setores: {error}</div>
+        </div>
+      </div>
+    );
+  }
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('pt-BR', {
@@ -146,7 +145,10 @@ export default function SectorsList() {
                       >
                         <Edit className="h-4 w-4" />
                       </button>
-                      <button className="p-1 text-gray-400 hover:text-red-600 transition-colors">
+                      <button 
+                        onClick={() => handleDeleteSector(sector.id)}
+                        className="p-1 text-gray-400 hover:text-red-600 transition-colors"
+                      >
                         <Trash className="h-4 w-4" />
                       </button>
                     </div>
