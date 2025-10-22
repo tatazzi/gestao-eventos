@@ -1,36 +1,114 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Sistema de Gestão de Eventos
 
-## Getting Started
+##  Como Rodar o Projeto
 
-First, run the development server:
+###  Instalar Dependências
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+###  Iniciar o Projeto
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+**Opção 1: Iniciar tudo junto**
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+npm run dev:all
+```
 
-## Learn More
+Isso iniciará:
+- Servidor de autenticação na porta 3001
+- Aplicação Next.js na porta 3000
 
-To learn more about Next.js, take a look at the following resources:
+**Opção 2: Iniciar separadamente**
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Terminal 1:
+```bash
+npm run server
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Terminal 2:
+```bash
+npm run dev
+```
 
-## Deploy on Vercel
+### Acessar o Sistema
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- **Aplicação:** http://localhost:3000
+- **API:** http://localhost:3001
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Comandos Disponíveis
+
+```bash
+npm run dev          # Inicia apenas o Next.js
+npm run server       # Inicia apenas o servidor de autenticação
+npm run dev:all      # Inicia servidor + Next.js
+npm run server:kill  # Mata processo na porta 3001
+npm run server:restart # Reinicia o servidor
+npm run build        # Build de produção
+npm run lint         # Executa o linter
+```
+
+## Solução de Problemas
+
+### Erro: "Porta 3001 em uso"
+
+**Solução Rápida:**
+```bash
+npm run server:restart
+```
+### Erro: "Not Found is not valid JSON"
+
+Isso significa que o servidor não está rodando. Execute:
+```bash
+npm run server
+```
+
+## Estrutura do Projeto
+
+```
+gestao-eventos/
+├── src/
+│   ├── app/              # Páginas Next.js
+│   │   ├── page.tsx      # Login
+│   │   ├── signup/       # Cadastro
+│   │   ├── dashboard/    # Dashboard administrativo
+│   │   ├── events/       # Página pública de eventos
+│   │   └── checkout/     # Checkout de ingressos
+│   ├── components/       # Componentes React
+│   ├── hooks/           # Custom hooks (useAuth, useEvents, etc)
+│   ├── store/           # Zustand store (authStore)
+│   └── assets/          # Ícones SVG
+├── db.json              # Banco de dados JSON
+└── server.js            # Servidor de autenticação JWT
+```
+## Tecnologias
+
+- **Frontend:** Next.js 15, React 19, TypeScript
+- **Estilização:** Tailwind CSS
+- **Estado Global:** Zustand
+- **Autenticação:** JWT (simulado)
+- **Backend:** JSON Server
+- **Ícones:** SVG customizados
+
+## 📡 Endpoints da API
+
+### Autenticação
+
+- `POST /auth/login` - Login
+- `POST /auth/register` - Cadastro
+
+### Dados
+
+- `GET /events` - Listar eventos
+- `POST /events` - Criar evento
+- `PUT /events/:id` - Atualizar evento
+- `DELETE /events/:id` - Deletar evento
+
+- `GET /sectors` - Listar setores
+- `GET /coupons` - Listar cupons
+- `GET /lots` - Listar lotes
+- `GET /settings` - Configurações
+- `GET /users` - Usuários
+
+
